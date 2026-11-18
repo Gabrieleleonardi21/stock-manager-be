@@ -92,3 +92,15 @@ CREATE TABLE IF NOT EXISTS report_mensili (
 );
 CREATE INDEX IF NOT EXISTS idx_report_owner ON report_mensili (owner_id, mese);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_report_import ON report_mensili (owner_id, import_key) WHERE import_key IS NOT NULL;
+
+-- Bozze d'ordine preparate dall'assistente (fase 7). Non vengono inviate a nessuno: restano in stato 'bozza'.
+CREATE TABLE IF NOT EXISTS ordini (
+    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id     UUID         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    magazzino_id UUID         NOT NULL REFERENCES magazzini (id) ON DELETE CASCADE,
+    stato        VARCHAR(20)  NOT NULL DEFAULT 'bozza' CHECK (stato IN ('bozza')),
+    nota         VARCHAR(500) NOT NULL DEFAULT '',
+    righe        JSONB        NOT NULL,
+    creato_il    TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_ordini_owner ON ordini (owner_id);
