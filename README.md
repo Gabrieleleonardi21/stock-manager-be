@@ -1,3 +1,5 @@
+> **Materiale di Gabriele Leonardi.** Tutti i diritti riservati, vedi [LICENSE](LICENSE).
+
 # STOCK MANAGER — back-end
 
 API Spring Boot 4.1.1 (Java 25) per il gestionale di magazzino. Database PostgreSQL (Neon).
