@@ -84,13 +84,14 @@ public class ReportService {
         ReportMensile r = trova(owner, id);
         List<String> righe = new ArrayList<>();
         righe.add(riga("Articolo", "SKU", "Categoria", "Unita", "Giacenza iniziale", "Arrivi", "Prelievi",
-                "Giacenza finale", "Valore acquisti EUR"));
+                "Giacenza finale", "Uscite EUR", "Entrate EUR"));
         for (RigaReport x : r.getRighe()) {
             righe.add(riga(x.nome(), x.sku(), x.categoria(), x.unita(), qta(x.giacenzaIniziale()), qta(x.arrivi()),
-                    qta(x.prelievi()), qta(x.giacenzaFinale()), euro(x.valoreAcquisti())));
+                    qta(x.prelievi()), qta(x.giacenzaFinale()), euro(x.valoreAcquisti()), euro(x.entrate())));
         }
+        BigDecimal entrate = ReportDto.totaleEntrate(r.getRighe());
         righe.add(riga("TOTALE", "", "", "", "", qta(r.getTotArrivi()), qta(r.getTotPrelievi()), "",
-                euro(r.getTotValoreAcquisti())));
+                euro(r.getTotValoreAcquisti()), euro(entrate)));
         return "﻿" + String.join("\n", righe);
     }
 
@@ -119,6 +120,7 @@ public class ReportService {
             BigDecimal arrivi = BigDecimal.ZERO;
             BigDecimal prelievi = BigDecimal.ZERO;
             BigDecimal valore = BigDecimal.ZERO;
+            BigDecimal entrate = BigDecimal.ZERO;
             List<Movimento> lista = perOggetto.getOrDefault(o.getId(), List.of());
             for (Movimento mv : lista) {
                 String mm = mv.getData().toString().substring(0, 7);
@@ -136,6 +138,9 @@ public class ReportService {
                         }
                     } else {
                         prelievi = prelievi.add(mv.getQta());
+                        if (mv.getPrezzo() != null) {
+                            entrate = entrate.add(mv.getQta().multiply(mv.getPrezzo()));
+                        }
                     }
                 }
             }
@@ -144,7 +149,7 @@ public class ReportService {
             if (attivo) {
                 BigDecimal finale = iniziale.add(arrivi).subtract(prelievi);
                 righe.add(new RigaReport(o.getNome(), o.getSku(), o.getCategoria(), o.getUnita(),
-                        iniziale, arrivi, prelievi, finale, valore));
+                        iniziale, arrivi, prelievi, finale, valore, entrate));
             }
         }
         righe.sort(Comparator.comparing(RigaReport::nome));

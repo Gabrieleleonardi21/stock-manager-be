@@ -55,10 +55,7 @@ public class ImportService {
                     o.categoria().trim(), o.unita().trim(), o.sogliaMin()));
             List<Movimento> daSalvare = new ArrayList<>();
             for (MovimentoRequest mv : o.movimenti()) {
-                BigDecimal prezzo = null;
-                if (mv.tipo() == Tipo.arrivo) {
-                    prezzo = mv.prezzo();
-                }
+                BigDecimal prezzo = mv.prezzo();
                 daSalvare.add(new Movimento(owner, salvato.getId(), mv.tipo(), mv.data(), mv.qta(), prezzo,
                         testo(mv.nota())));
             }

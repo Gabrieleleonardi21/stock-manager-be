@@ -15,22 +15,41 @@ public final class ReportDto {
 
     public record GeneraRequest(@NotBlank @Pattern(regexp = MESE_REGEX) String mese) {}
 
-    /** Vista completa (con righe), usata per il dettaglio. */
+    /**
+     * Entrate del mese: somma dei prelievi valorizzati al prezzo di vendita.
+     * Le righe dei report vecchi non hanno il campo: si contano come zero.
+     */
+    public static BigDecimal totaleEntrate(List<RigaReport> righe) {
+        BigDecimal totale = BigDecimal.ZERO;
+        for (RigaReport r : righe) {
+            if (r.entrate() != null) {
+                totale = totale.add(r.entrate());
+            }
+        }
+        return totale;
+    }
+
+    /** Vista completa (con righe), usata per il dettaglio. Il risultato e' entrate meno uscite (valore acquisti). */
     public record ReportView(UUID id, String mese, String azienda, String magazzinoNome, String autore,
                              BigDecimal totArrivi, BigDecimal totPrelievi, BigDecimal totValoreAcquisti,
-                             List<RigaReport> righe) {
+                             BigDecimal totEntrate, BigDecimal totRisultato, List<RigaReport> righe) {
         public static ReportView from(ReportMensile r) {
+            BigDecimal entrate = totaleEntrate(r.getRighe());
             return new ReportView(r.getId(), r.getMese(), r.getAzienda(), r.getMagazzinoNome(), r.getAutore(),
-                    r.getTotArrivi(), r.getTotPrelievi(), r.getTotValoreAcquisti(), r.getRighe());
+                    r.getTotArrivi(), r.getTotPrelievi(), r.getTotValoreAcquisti(), entrate,
+                    entrate.subtract(r.getTotValoreAcquisti()), r.getRighe());
         }
     }
 
     /** Vista leggera per l'elenco: senza righe. */
     public record ReportSintesi(UUID id, String mese, String azienda, String magazzinoNome,
-                                BigDecimal totArrivi, BigDecimal totPrelievi, BigDecimal totValoreAcquisti) {
+                                BigDecimal totArrivi, BigDecimal totPrelievi, BigDecimal totValoreAcquisti,
+                                BigDecimal totEntrate, BigDecimal totRisultato) {
         public static ReportSintesi from(ReportMensile r) {
+            BigDecimal entrate = totaleEntrate(r.getRighe());
             return new ReportSintesi(r.getId(), r.getMese(), r.getAzienda(), r.getMagazzinoNome(),
-                    r.getTotArrivi(), r.getTotPrelievi(), r.getTotValoreAcquisti());
+                    r.getTotArrivi(), r.getTotPrelievi(), r.getTotValoreAcquisti(), entrate,
+                    entrate.subtract(r.getTotValoreAcquisti()));
         }
     }
 

@@ -12,4 +12,5 @@ public record RigaReport(
         BigDecimal arrivi,
         BigDecimal prelievi,
         BigDecimal giacenzaFinale,
-        BigDecimal valoreAcquisti) {}
+        BigDecimal valoreAcquisti,
+        BigDecimal entrate) {}

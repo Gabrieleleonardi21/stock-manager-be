@@ -45,10 +45,8 @@ public class MovimentoService {
             }
         }
         // il prezzo d'acquisto ha senso solo per gli arrivi
-        BigDecimal prezzo = null;
-        if (r.tipo() == Tipo.arrivo) {
-            prezzo = r.prezzo();
-        }
+        // arrivi: prezzo d'acquisto (uscita); prelievi: prezzo di vendita (entrata). Entrambi opzionali
+        BigDecimal prezzo = r.prezzo();
         String nota = "";
         if (r.nota() != null) {
             nota = r.nota().trim();

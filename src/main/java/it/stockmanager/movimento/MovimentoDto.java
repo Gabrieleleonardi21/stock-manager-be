@@ -16,6 +16,7 @@ public final class MovimentoDto {
             @NotNull Tipo tipo,
             @NotNull LocalDate data,
             @NotNull @jakarta.validation.constraints.Positive @Digits(integer = 11, fraction = 3) BigDecimal qta,
+            // unitario: costo per gli arrivi, prezzo di vendita per i prelievi (facoltativo)
             @PositiveOrZero @Digits(integer = 10, fraction = 4) BigDecimal prezzo,
             @Size(max = 500) String nota) {}
 
