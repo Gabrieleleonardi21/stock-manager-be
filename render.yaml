@@ -1,0 +1,22 @@
+# Blueprint Render del back-end. Il database e' Neon (fuori da Render).
+# Le variabili con "sync: false" si impostano nella dashboard di Render, mai nel repository.
+services:
+  - type: web
+    name: stock-manager-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      # Origine del frontend (es. https://stock-manager-web.onrender.com). Vedi la nota sul deploy.
+      - key: ALLOWED_ORIGIN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

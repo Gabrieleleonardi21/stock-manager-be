@@ -1,0 +1,88 @@
+# Configurazione del back-end STOCK MANAGER. Segreti solo da variabili d'ambiente o da server/.env (ignorato da git).
+spring:
+  config:
+    # Legge server/.env in locale (formato KEY=VALUE, compatibile con le proprieta')
+    import: optional:file:.env[.properties]
+  application:
+    name: stock-manager
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/stock}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:}
+
+  # Schema applicato all'avvio: db/schema.sql usa IF NOT EXISTS, quindi e' sicuro rieseguirlo
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
+  jpa:
+    hibernate:
+      # Lo schema lo crea db/schema.sql (decisione D17): Hibernate verifica solo che le entity combacino.
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+          # inserimenti a blocchi: un import di molti movimenti non fa una richiesta per riga verso il database
+          batch_size: 100
+        order_inserts: true
+
+  # Tabelle delle sessioni HTTP in PostgreSQL (decisione D01), create dalla libreria.
+  session:
+    jdbc:
+      initialize-schema: always
+
+  # Corpo delle richieste: limite globale a 100 KB (vedi BodySizeFilter)
+  servlet:
+    multipart:
+      max-file-size: 100KB
+      max-request-size: 100KB
+
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  # Dietro un reverse proxy in produzione: IP del client e HTTPS da X-Forwarded-*
+  forward-headers-strategy: native
+  servlet:
+    session:
+      timeout: 30m          # inattivita' (il timeout assoluto e' in SessionLifetimeFilter)
+      cookie:
+        # Cookie __Host-: deve essere Secure, Path=/ e senza Domain
+        name: __Host-sid
+        http-only: true
+        secure: true
+        same-site: strict
+        path: /
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  # Origine ammessa per le richieste che modificano dati (controllo Origin, vedi OriginCheckFilter)
+  allowed-origin: ${ALLOWED_ORIGIN:http://localhost:5173}
+  # Chiave dell'assistente AI: solo lato server (fase 3)
+  ai:
+    api-key: ${ANTHROPIC_API_KEY:}
+    model: claude-haiku-5-5
+    max-tokens: 1000
+
+# Limiti di accesso (sezione 2 del piano). I valori di default sono quelli di produzione;
+# in sviluppo si alzano in server/.env, che ha la precedenza.
+app.limiti:
+  login-per-ip: 20
+  login-per-account: 5
+  registrazioni-per-ip-ora: 5
