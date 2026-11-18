@@ -1,4 +1,4 @@
-# Blueprint Render del back-end. Il database e' Neon (fuori da Render).
+# Blueprint Render: un solo servizio, app e API sullo stesso dominio. Il database e' Neon (fuori da Render).
 # Le variabili con "sync: false" si impostano nella dashboard di Render, mai nel repository.
 services:
   - type: web
@@ -15,7 +15,7 @@ services:
         sync: false
       - key: DB_PASSWORD
         sync: false
-      # Origine del frontend (es. https://stock-manager-web.onrender.com). Vedi la nota sul deploy.
+      # Origine pubblica del servizio, stesso dominio di app e API (es. https://stock-manager-api.onrender.com)
       - key: ALLOWED_ORIGIN
         sync: false
       - key: ANTHROPIC_API_KEY
