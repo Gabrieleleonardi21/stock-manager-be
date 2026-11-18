@@ -6,7 +6,7 @@ FROM node:24-alpine AS web
 RUN apk add --no-cache git
 ARG FE_REPO=https://github.com/Gabrieleleonardi21/stock-manager-fe.git
 # Commit preciso del front-end da includere. Cambialo a ogni nuova versione del front-end (evita la cache di Docker).
-ARG FE_REF=3eb3b32387740d8f1bca05a3800fdeeb80467c1d
+ARG FE_REF=50a54b01786d9a48196d22823f0daea3c8cfccd5
 WORKDIR /fe
 RUN git clone "$FE_REPO" . && git checkout --quiet "$FE_REF"
 RUN npm ci && npm run build
